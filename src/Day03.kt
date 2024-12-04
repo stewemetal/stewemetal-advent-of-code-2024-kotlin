@@ -133,16 +133,43 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        return input.joinToString().run {
+            val multiplicationResults = mutableListOf<Int>()
+
+            val mulRegex = "mul\\((\\d+),(\\d+)\\)|do\\(\\)|don't\\(\\)".toRegex()
+
+            val regexResults = mulRegex.findAll(this)
+
+            var mulOn = true
+            regexResults.forEach { result ->
+                when {
+                    mulOn && result.value.startsWith("mul(") -> {
+                        val (a, b) = result.destructured
+                        println("$a, $b")
+                        multiplicationResults.add(a.toInt() * b.toInt())
+                    }
+
+                    result.value == "do()" -> {
+                        mulOn = true
+                    }
+
+                    result.value == "don't()" -> {
+                        mulOn = false
+                    }
+                }
+            }
+
+            multiplicationResults.sum()
+        }
     }
 
     // Or read a large test input from the `src/Day01_test.txt` file:
     val testInput = readInput("Day03_test")
     check(part1(testInput) == 161)
-//    check(part2(testInput) == 1)
+//    check(part2(testInput) == 48)
 
     // Read the input from the `src/Day01.txt` file.
     val input = readInput("Day03")
     part1(input).println()
-//    part2(input).println()
+    part2(input).println()
 }
