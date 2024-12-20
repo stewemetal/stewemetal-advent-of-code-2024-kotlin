@@ -9,8 +9,7 @@ enum class Direction(
     UP_LEFT(-1, -1),
     UP_RIGHT(-1, 1),
     DOWN_LEFT(1, -1),
-    DOWN_RIGHT(1, 1),
-
+    DOWN_RIGHT(1, 1);
 }
 
 fun main() {
@@ -21,6 +20,9 @@ fun main() {
         } catch (e: IndexOutOfBoundsException) {
             null
         }
+
+    operator fun List<String>.get(row: Int, column: Int, direction: Direction): Char? =
+        this[row + direction.rowOffset, column + direction.columnOffset]
 
     fun check(
         input: List<String>,
@@ -78,16 +80,38 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        var sum = 0
+
+        input.forEachIndexed { rowIndex, row ->
+            row.forEachIndexed { columnIndex, character ->
+                sum += if (character == 'A') {
+                    if (
+                        input[rowIndex, columnIndex, Direction.UP_LEFT] == null ||
+                        input[rowIndex, columnIndex, Direction.UP_RIGHT] == null ||
+                        input[rowIndex, columnIndex, Direction.DOWN_LEFT] == null ||
+                        input[rowIndex, columnIndex, Direction.DOWN_RIGHT] == null
+                    ) {
+                        0
+                    } else if (
+                        ((input[rowIndex, columnIndex, Direction.UP_LEFT] == 'M' && input[rowIndex, columnIndex, Direction.DOWN_RIGHT] == 'S') || (input[rowIndex, columnIndex, Direction.UP_LEFT] == 'S' && input[rowIndex, columnIndex, Direction.DOWN_RIGHT] == 'M')) &&
+                        ((input[rowIndex, columnIndex, Direction.UP_RIGHT] == 'M' && input[rowIndex, columnIndex, Direction.DOWN_LEFT] == 'S') || (input[rowIndex, columnIndex, Direction.UP_RIGHT] == 'S' && input[rowIndex, columnIndex, Direction.DOWN_LEFT] == 'M'))
+                    ) {
+                        1
+                    } else { 0 }
+                } else 0
+            }
+        }
+
+        return sum
     }
 
     // Or read a large test input from the `src/Day01_test.txt` file:
     val testInput = readInput("Day04_test")
     check(part1(testInput) == 18)
-    //    check(part2(testInput) == 1)
+    check(part2(testInput) == 9)
 
     // Read the input from the `src/Day01.txt` file.
     val input = readInput("Day04")
     part1(input).println()
-    //    part2(input).println()
+    part2(input).println()
 }
